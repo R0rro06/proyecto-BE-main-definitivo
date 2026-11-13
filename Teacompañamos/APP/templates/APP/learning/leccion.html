@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="{% if request.COOKIES.tema == 'oscuro' %}oscuro{% else %}claro{% endif %}">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responder lección | Teacompañamos</title>
+    <link rel="stylesheet" href="{% static 'APP/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/leccion.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/learning_controls.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/tema.css' %}">
+</head>
+<body>
+    <header>
+        <a href="{% url 'aprender_modulo' leccion.modulo_id %}">← Volver a {{ leccion.modulo.titulo }}</a>
+        {% include 'APP/learning/_controles.html' %}
+    </header>
+    <main>
+        <h1>Responde la lección</h1>
+        <section class="question" aria-labelledby="question-heading">
+            <h2 id="question-heading">{{ leccion.pregunta }}</h2>
+
+            {% if respuesta_enviada %}
+                {% if es_correcta %}
+                    <div class="feedback correct" role="status">
+                        <h3>¡Correcto!</h3>
+                        <p>{{ leccion.explicacion }}</p>
+                    </div>
+                {% else %}
+                    <div class="feedback incorrect" role="status">
+                        <h3>Respuesta incorrecta</h3>
+                        <p>La respuesta correcta es <strong>{% if leccion.es_verdad %}Verdadero{% else %}Falso{% endif %}.</strong></p>
+                        <p>{{ leccion.explicacion }}</p>
+                    </div>
+                {% endif %}
+                <a href="{% url 'aprender_modulo' leccion.modulo_id %}">Volver a las lecciones del módulo</a>
+            {% else %}
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div role="alert">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    <fieldset class="answers answer-options">
+                        <legend>{{ form.respuesta.label }}</legend>
+                        {% for radio in form.respuesta %}
+                            <label for="{{ radio.id_for_label }}">
+                                {{ radio.tag }}
+                                {{ radio.choice_label }}
+                            </label>
+                        {% endfor %}
+                    </fieldset>
+                    {% for error in form.respuesta.errors %}
+                        <p role="alert">{{ error }}</p>
+                    {% endfor %}
+                    <button type="submit">Comprobar respuesta</button>
+                </form>
+            {% endif %}
+        </section>
+        {% if estudiante %}
+            <p>Tu intento se guarda en tu perfil.</p>
+        {% else %}
+            <p>Esta respuesta no se guardará. <a href="{% url 'acceso_estudiante' %}">Ingresa con tu cuenta</a> para conservar tu progreso.</p>
+        {% endif %}
+    </main>
+    {% include 'APP/learning/_cookies.html' %}
+</body>
+</html>

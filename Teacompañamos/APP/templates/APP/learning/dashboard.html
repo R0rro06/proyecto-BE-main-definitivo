@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="{% if request.COOKIES.tema == 'oscuro' %}oscuro{% else %}claro{% endif %}">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tu espacio de aprendizaje en Teacompañamos.">
+    <title>Aprender | Teacompañamos</title>
+    <link rel="stylesheet" href="{% static 'APP/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/learning_controls.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/tema.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{% url 'dashboard' %}">Teacompañamos</a>
+        <div class="header-actions">
+            {% if can_manage_content %}
+                <a class="admin-link" href="{% url 'panel_administracion' %}">Panel de administración</a>
+                <a class="admin-link" href="{% url 'admin:APP_usuario_changelist' %}">Administrar usuarios</a>
+            {% endif %}
+            {% include 'APP/learning/_controles.html' %}
+        </div>
+    </header>
+
+    <main>
+        <section class="welcome" aria-labelledby="welcome-heading">
+            <h1 id="welcome-heading">¡Hola{% if estudiante %}, {{ estudiante.username }}{% endif %}!</h1>
+            <p>Explora tus módulos y avanza a tu ritmo.</p>
+        </section>
+
+        <section class="summary" aria-label="Resumen de aprendizaje">
+            <article class="summary-card">
+                <strong>{{ total_modulos }}</strong>
+                <span>{% if total_modulos == 1 %}módulo disponible{% else %}módulos disponibles{% endif %}</span>
+            </article>
+            <article class="summary-card">
+                <strong>{{ total_lecciones }}</strong>
+                <span>{% if total_lecciones == 1 %}lección disponible{% else %}lecciones disponibles{% endif %}</span>
+            </article>
+            <article class="summary-card">
+                <strong>{% if estudiante %}{{ lecciones_completadas }}{% else %}—{% endif %}</strong>
+                <span>lecciones completadas</span>
+            </article>
+        </section>
+
+        <section aria-labelledby="modules-heading">
+            <div class="section-heading">
+                <h2 id="modules-heading">Tu camino de aprendizaje</h2>
+                <p>Contenido disponible, organizado por módulos.</p>
+            </div>
+
+            {% if modulos %}
+                <div class="modules">
+                    {% for modulo in modulos %}
+                        <a class="module-link" href="{% url 'aprender_modulo' modulo.pk %}">
+                            <article class="module-card">
+                                <h3>Módulo {{ modulo.orden }}: {{ modulo.titulo }}</h3>
+                                <p>{{ modulo.descripcion }}</p>
+                                <span class="lesson-count">
+                                    {% with cantidad=modulo.lecciones|length %}
+                                        {% if cantidad == 1 %}1 lección{% else %}{{ cantidad }} lecciones{% endif %}
+                                    {% endwith %}
+                                </span>
+                                <p><strong>Abrir módulo →</strong></p>
+                            </article>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>Todavía no hay módulos</h3>
+                    <p>Cuando haya contenido disponible, aparecerá aquí.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <aside class="progress-note" aria-labelledby="progress-heading">
+            <h2 id="progress-heading">Tu progreso</h2>
+            <p>Has completado {{ lecciones_completadas }} de {{ total_lecciones }} lecciones. Tus intentos se guardan en tu perfil.</p>
+        </aside>
+    </main>
+    {% include 'APP/learning/_cookies.html' %}
+</body>
+</html>

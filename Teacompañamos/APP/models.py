@@ -1,0 +1,116 @@
+
+# Create your models here.
+# This is an auto-generated Django model module.
+# You'll have to do the following manually to clean this up:
+#   * Rearrange models' order
+#   * Make sure each model has one field with primary_key=True
+#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
+#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
+# Feel free to rename the models, but don't rename db_table values or field names.
+from django.conf import settings
+from django.db import models
+
+
+class LoginAttempt(models.Model):
+    key = models.CharField(max_length=64, primary_key=True)
+    failures = models.PositiveSmallIntegerField(default=0)
+    blocked_until = models.DateTimeField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'login_attempt'
+
+
+class Leccion(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    pregunta = models.CharField(max_length=300)
+    es_verdad = models.IntegerField()
+    explicacion = models.TextField()
+    completada = models.IntegerField(default=0)
+    modulo = models.ForeignKey('Modulo', models.DO_NOTHING)
+
+    class Meta:
+        managed = True
+        db_table = 'leccion'
+
+
+class Modulo(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField()
+    orden = models.PositiveIntegerField()
+    def __str__(self):
+        return f"Módulo {self.orden}: {self.titulo}"
+
+    class Meta:
+        managed = True
+        db_table = 'modulo'
+
+
+class Estado(models.Model):
+    nombre = models.CharField(max_length=50)
+
+    class Meta:
+        managed = True
+        db_table = 'estado'
+
+
+
+class Perfil(models.Model):
+    # Cada perfil vincula a un usuario con uno de sus roles.
+    usuario = models.ForeignKey('Usuario', models.CASCADE)
+    rol = models.ForeignKey('Rol', models.DO_NOTHING)
+
+    def __str__(self):
+        return f'{self.usuario} · {self.rol}'
+
+    class Meta:
+        managed = True
+        db_table = 'perfil'
+        verbose_name = 'perfil'
+        verbose_name_plural = 'Perfiles'
+
+
+class Progreso(models.Model):
+    # El avance de una lección pertenece a un perfil, no a la lección global.
+    perfil = models.ForeignKey(Perfil, models.CASCADE)
+    leccion = models.ForeignKey(Leccion, models.DO_NOTHING)
+    estado = models.ForeignKey(Estado, models.DO_NOTHING, blank=True, null=True)
+    intentos = models.IntegerField()
+    fecha_completada = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'progreso'
+
+
+class Rol(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=255, blank=True, null=True)
+    codigo = models.CharField(max_length=20, unique=True, blank=True, null=True, editable=False)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        managed = True
+        db_table = 'rol'
+        verbose_name = 'rol'
+        verbose_name_plural = 'Roles'
+
+
+class Usuario(models.Model):
+    username = models.CharField(max_length=100, unique=True)
+    email = models.CharField(max_length=150, unique=True, blank=True, null=True)
+    password = models.CharField(max_length=255)
+    django_user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+        blank=True, null=True, editable=False,
+    )
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        managed = True
+        db_table = 'usuario'

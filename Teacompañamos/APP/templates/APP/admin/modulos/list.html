@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="{% if request.COOKIES.tema == 'oscuro' %}oscuro{% else %}claro{% endif %}">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar módulos</title>
+    <link rel="stylesheet" href="{% static 'APP/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/tema.css' %}">
+</head>
+<body>
+    <header>
+        <a href="{% url 'panel_administracion' %}">Volver al panel</a>
+        <strong>Teacompañamos · Módulos</strong>
+        <a class="button button-primary" href="{% url 'cursos_modulo_form' %}">Crear módulo</a>
+    </header>
+
+    <main>
+        <div class="page-intro">
+            <h1>Administrar módulos</h1>
+            <p>Organiza los módulos de aprendizaje y sus lecciones.</p>
+        </div>
+
+        <form method="get" class="filter-bar">
+            <div class="filter-field">
+                <label for="module-search">Buscar</label>
+                <input id="module-search" type="search" name="q" value="{{ request.GET.q }}" placeholder="Título o descripción">
+            </div>
+            <div class="filter-field filter-order">
+                <label for="module-order">Orden</label>
+                <input id="module-order" type="number" min="0" name="orden" value="{{ request.GET.orden }}" placeholder="Cualquier orden">
+            </div>
+            <div class="filter-actions">
+                <button type="submit">Filtrar</button>
+                <a class="button" href="{% url 'cursos_modulo_list' %}">Limpiar</a>
+            </div>
+        </form>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="status-message {{ message.tags }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    {% if modulos %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Orden</th>
+                        <th>Título</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for modulo in modulos %}
+                        <tr>
+                            <td>{{ modulo.orden }}</td>
+                            <td>{{ modulo.titulo }}</td>
+                            <td>{{ modulo.descripcion }}</td>
+                            <td>
+                                <a class="button" href="{% url 'cursos_modulo_update' modulo.pk %}">Editar</a>
+                                <a class="button button-danger" href="{% url 'cursos_modulo_delete' modulo.pk %}">Eliminar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            {% if request.GET.q or request.GET.orden %}
+                <p>No hay módulos que coincidan con esos criterios.</p>
+            {% else %}
+                <p>Aún no hay módulos registrados. Puedes crear el primero.</p>
+                <a class="button button-primary" href="{% url 'cursos_modulo_form' %}">Crear módulo</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    </main>
+    {% include 'APP/learning/_cookies.html' %}
+</body>
+</html>

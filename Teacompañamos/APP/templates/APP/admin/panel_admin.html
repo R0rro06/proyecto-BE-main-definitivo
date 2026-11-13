@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="{% if request.COOKIES.tema == 'oscuro' %}oscuro{% else %}claro{% endif %}">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Administra los módulos y las lecciones de Teacompañamos.">
+    <title>Panel de administración | Teacompañamos</title>
+    <link rel="stylesheet" href="{% static 'APP/panel_admin.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/tema.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{% url 'panel_administracion' %}">Teacompañamos · Administración</a>
+        <a class="back-link" href="{% url 'dashboard' %}">← Volver al dashboard</a>
+    </header>
+
+    <main>
+        <section class="intro" aria-labelledby="panel-heading">
+            <h1 id="panel-heading">Panel de administración</h1>
+            <p>Gestiona el contenido de aprendizaje: crea, consulta y organiza módulos y lecciones.</p>
+        </section>
+
+        <div class="management-grid">
+            {% if perms.APP.view_modulo %}<section class="management-card" aria-labelledby="modulos-heading">
+                <h2 id="modulos-heading">Módulos</h2>
+                <p>Organiza las unidades de aprendizaje y administra sus títulos, descripciones y orden.</p>
+                <div class="actions">
+                    <a class="button button-primary" href="{% url 'cursos_modulo_list' %}">Ver módulos</a>
+                    {% if perms.APP.add_modulo %}<a class="button" href="{% url 'cursos_modulo_form' %}">Crear módulo</a>{% endif %}
+                </div>
+            </section>{% endif %}
+
+            {% if perms.APP.view_leccion %}<section class="management-card" aria-labelledby="lecciones-heading">
+                <h2 id="lecciones-heading">Lecciones</h2>
+                <p>Administra preguntas, respuestas correctas, explicaciones y el módulo de cada lección.</p>
+                <div class="actions">
+                    <a class="button button-primary" href="{% url 'cursos_leccion_list' %}">Ver lecciones</a>
+                    {% if perms.APP.add_leccion %}<a class="button" href="{% url 'cursos_leccion_form' %}">Crear lección</a>{% endif %}
+                </div>
+            </section>{% endif %}
+
+            {% if perms.APP.view_rol %}<section class="management-card" aria-labelledby="roles-heading">
+                <h2 id="roles-heading">Roles</h2>
+                <p>Administra los roles disponibles para asignarlos a los perfiles de usuario.</p>
+                <div class="actions">
+                    <a class="button button-primary" href="{% url 'rol_list' %}">Ver roles</a>
+                    {% if perms.APP.add_rol %}<a class="button" href="{% url 'rol_form' %}">Crear rol</a>{% endif %}
+                </div>
+            </section>{% endif %}
+        </div>
+    </main>
+    {% include 'APP/learning/_cookies.html' %}
+</body>
+</html>

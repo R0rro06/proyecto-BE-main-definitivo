@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="{% if request.COOKIES.tema == 'oscuro' %}oscuro{% else %}claro{% endif %}">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ modulo.titulo }} | Teacompañamos</title>
+    <link rel="stylesheet" href="{% static 'APP/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/modulo.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/learning_controls.css' %}">
+    <link rel="stylesheet" href="{% static 'APP/tema.css' %}">
+</head>
+<body>
+    <header>
+        <a href="{% url 'dashboard' %}">← Volver al dashboard</a>
+        {% include 'APP/learning/_controles.html' %}
+    </header>
+    <main>
+        <h1>Módulo {{ modulo.orden }}: {{ modulo.titulo }}</h1>
+        <p>{{ modulo.descripcion }}</p>
+
+        <section aria-labelledby="lessons-heading">
+            <h2 id="lessons-heading">Lecciones</h2>
+            {% if modulo.lecciones %}
+                {% for leccion in modulo.lecciones %}
+                    <article class="lesson lesson-card">
+                        <h3>{{ forloop.counter }}. {{ leccion.pregunta }}</h3>
+                        <a href="{% url 'responder_leccion' leccion.pk %}">Abrir lección y responder</a>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>Este módulo todavía no tiene lecciones.</p>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+    {% include 'APP/learning/_cookies.html' %}
+</body>
+</html>
